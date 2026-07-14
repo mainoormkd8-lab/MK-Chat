@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MK Chat</title>
+
+  <link rel="stylesheet" href="style.css">
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+
+<body>
+<div id="loginPage">
+
+  <h1>MK Chat</h1>
+
+  <input
+    id="username"
+    type="text"
+    placeholder="Enter your name">
+
+  <button id="loginBtn">
+    Continue
+  </button>
+
+</div>
+<div class="app" id="chatPage" style="display:none;">
+
+<header class="header">
+  <div class="avatar">MK</div>
+
+  <div class="user">
+    <h2>MK Chat</h2>
+    <span>🟢 Online</span>
+  </div>
+</header>
+
+<main id="chatBox"></main>
+
+<footer class="footer">
+
+<input
+id="message"
+type="text"
+placeholder="Type a message...">
+
+<button id="sendBtn">➤</button>
+
+</footer>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
