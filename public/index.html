@@ -12,7 +12,7 @@
 <body>
 <div id="loginPage">
 
-  <h1>MK Chat</h1>
+  <h2 id="chatTitle">MK Chat</h2>
 
   <input
     id="username"
@@ -22,7 +22,9 @@
   <button id="loginBtn">
     Continue
   </button>
-
+<div class="avatar-preview">
+  👤
+</div>
 </div>
 <div class="app" id="chatPage" style="display:none;">
 
@@ -31,13 +33,25 @@
 
   <div class="user">
     <h2>MK Chat</h2>
-    <span>🟢 Online</span>
+    <span id="onlineUsers">🟢 1 User Online</span>
   </div>
 </header>
-
+<div id="userList" class="user-list">
+  <h3>🟢 Online Users</h3>
+  <ul id="users"></ul>
+</div>
+<div id="typing" class="typing"></div>
 <main id="chatBox"></main>
-
 <footer class="footer">
+
+<button id="emojiBtn">😊</button>
+<input
+  type="file"
+  id="imageInput"
+  accept="image/*"
+  style="display:none;">
+
+<button id="imageBtn">📎</button>
 
 <input
 id="message"
