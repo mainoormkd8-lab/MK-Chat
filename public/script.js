@@ -1,3 +1,4 @@
+alert("Script Loaded");
 const socket = io();
 let selectedUser = "";
 let myName = "";
