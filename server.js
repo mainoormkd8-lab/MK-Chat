@@ -1,3 +1,5 @@
+const User = require("./models/User");
+const mongoose = require("mongoose");
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
@@ -5,7 +7,13 @@ const { Server } = require("socket.io");
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
-
+mongoose.connect(process.env.MONGODB_URI)
+.then(() => {
+  console.log("MongoDB Connected");
+})
+.catch((err) => {
+  console.log(err);
+});
 let onlineUsers = 0;
 let users = [];
 
@@ -70,6 +78,68 @@ io.on("connection", (socket) => {
 
   });
 
+});
+app.use(express.json());
+
+app.post("/signup", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    const user = await User.findOne({ username });
+
+    if (user) {
+      return res.json({
+        success: false,
+        message: "Username already exists"
+      });
+    }
+
+    await User.create({
+      username,
+      password
+    });
+
+    res.json({
+      success: true,
+      message: "Account created"
+    });
+
+  } catch (err) {
+    console.log(err);
+
+    res.json({
+      success: false,
+      message: "Server error"
+    });
+  }
+});
+app.post("/login", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    const user = await User.findOne({ username, password });
+
+    if (!user) {
+      return res.json({
+        success: false,
+        message: "Invalid username or password"
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Login successful",
+      username: user.username
+    });
+
+  } catch (err) {
+    console.log(err);
+
+    res.json({
+      success: false,
+      message: "Server error"
+    });
+  }
 });
 
 const PORT = process.env.PORT || 3000;

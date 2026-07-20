@@ -5,23 +5,54 @@ let myName = "";
 const loginPage = document.getElementById("loginPage");
 const chatPage = document.getElementById("chatPage");
 const username = document.getElementById("username");
+const password = document.getElementById("password");
+const signupBtn = document.getElementById("signupBtn");
+const loginBtn = document.getElementById("loginBtn");
 const loginBtn = document.getElementById("loginBtn");
 const usersList = document.getElementById("users");
 const chatTitle = document.getElementById("chatTitle")
 const imageBtn = document.getElementById("imageBtn");
 const imageInput = document.getElementById("imageInput");
-loginBtn.onclick = () => {
-  if (username.value.trim() === "") {
-    alert("Apna naam likho");
+signupBtn.onclick = async () => {
+  const res = await fetch("/signup", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      username: username.value,
+      password: password.value
+    })
+  });
+
+  const data = await res.json();
+  alert(data.message);
+};
+
+loginBtn.onclick = async () => {
+  const res = await fetch("/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      username: username.value,
+      password: password.value
+    })
+  });
+
+  const data = await res.json();
+
+  if (!data.success) {
+    alert(data.message);
     return;
   }
 
- myName = username.value.trim();
+  myName = data.username;
+  socket.emit("join", myName);
 
-socket.emit("join", myName);
-
-loginPage.style.display = "none";
-chatPage.style.display = "flex";
+  loginPage.style.display = "none";
+  chatPage.style.display = "flex";
 };
 
 const chatBox = document.getElementById("chatBox");
