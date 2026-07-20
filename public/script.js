@@ -8,7 +8,6 @@ const username = document.getElementById("username");
 const password = document.getElementById("password");
 const signupBtn = document.getElementById("signupBtn");
 const loginBtn = document.getElementById("loginBtn");
-const loginBtn = document.getElementById("loginBtn");
 const usersList = document.getElementById("users");
 const chatTitle = document.getElementById("chatTitle")
 const imageBtn = document.getElementById("imageBtn");
