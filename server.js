@@ -80,8 +80,9 @@ io.on("connection", (socket) => {
 
 });
 app.use(express.json());
-
 app.post("/signup", async (req, res) => {
+  console.log("Signup Request:", req.body);
+
   try {
     const { username, password } = req.body;
 
@@ -114,6 +115,8 @@ app.post("/signup", async (req, res) => {
   }
 });
 app.post("/login", async (req, res) => {
+  console.log("Login Request:", req.body);
+
   try {
     const { username, password } = req.body;
 
@@ -147,3 +150,5 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, "0.0.0.0", () => {
   console.log(`Server Running on Port ${PORT}`);
 });
+o
+
