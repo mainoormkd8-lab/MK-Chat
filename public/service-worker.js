@@ -1,4 +1,4 @@
-const CACHE_NAME = "mk-chat-v1";
+const CACHE_NAME = "mk-chat-v2";
 
 const urlsToCache = [
   "/",
