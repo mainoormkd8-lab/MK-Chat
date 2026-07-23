@@ -1,5 +1,3 @@
-const User = require("./models/User");
-const mongoose = require("mongoose");
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
@@ -7,24 +5,16 @@ const { Server } = require("socket.io");
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
-mongoose.connect(process.env.MONGODB_URI)
-.then(() => {
-  console.log("MongoDB Connected");
-})
-.catch((err) => {
-  console.log(err);
-});
-let onlineUsers = 0;
-let users = [];
 
 app.use(express.static("public"));
+
+let users = [];
+let onlineUsers = 0;
 
 io.on("connection", (socket) => {
 
   onlineUsers++;
   io.emit("online users", onlineUsers);
-
-  console.log("User Connected");
 
   socket.on("join", (name) => {
 
@@ -44,25 +34,11 @@ io.on("connection", (socket) => {
   });
 
   socket.on("chat message", (data) => {
-
-    if (data.to) {
-      io.to(data.to).emit("chat message", data);
-      socket.emit("chat message", data);
-    } else {
-      io.emit("chat message", data);
-    }
-
+    io.emit("chat message", data);
   });
 
   socket.on("chat image", (data) => {
-
-    if (data.to) {
-      io.to(data.to).emit("chat image", data);
-      socket.emit("chat image", data);
-    } else {
-      io.emit("chat image", data);
-    }
-
+    io.emit("chat image", data);
   });
 
   socket.on("disconnect", () => {
@@ -71,84 +47,13 @@ io.on("connection", (socket) => {
 
     users = users.filter(user => user.id !== socket.id);
 
-    io.emit("user list", users);
     io.emit("online users", onlineUsers);
-
-    console.log("User Disconnected");
+    io.emit("user list", users);
 
   });
 
-});
-app.use(express.json());
-app.post("/signup", async (req, res) => {
-  console.log("Signup Request:", req.body);
-
-  try {
-    const { username, password } = req.body;
-
-    const user = await User.findOne({ username });
-
-    if (user) {
-      return res.json({
-        success: false,
-        message: "Username already exists"
-      });
-    }
-
-    await User.create({
-      username,
-      password
-    });
-
-    res.json({
-      success: true,
-      message: "Account created"
-    });
-
-  } catch (err) {
-    console.log(err);
-
-    res.json({
-      success: false,
-      message: "Server error"
-    });
-  }
-});
-app.post("/login", async (req, res) => {
-  console.log("Login Request:", req.body);
-
-  try {
-    const { username, password } = req.body;
-
-    const user = await User.findOne({ username, password });
-
-    if (!user) {
-      return res.json({
-        success: false,
-        message: "Invalid username or password"
-      });
-    }
-
-    res.json({
-      success: true,
-      message: "Login successful",
-      username: user.username
-    });
-
-  } catch (err) {
-    console.log(err);
-
-    res.json({
-      success: false,
-      message: "Server error"
-    });
-  }
-});
-
-const PORT = process.env.PORT || 3000;
+});const PORT = process.env.PORT || 3000;
 
 server.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server Running on Port ${PORT}`);
+  console.log("Server Running on Port " + PORT);
 });
-
-
