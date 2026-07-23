@@ -6,49 +6,20 @@ let myName = "";
 const loginPage = document.getElementById("loginPage");
 const chatPage = document.getElementById("chatPage");
 const username = document.getElementById("username");
-const password = document.getElementById("password");
-const signupBtn = document.getElementById("signupBtn");
+;
 const loginBtn = document.getElementById("loginBtn");
 const usersList = document.getElementById("users");
 const chatTitle = document.getElementById("chatTitle")
 const imageBtn = document.getElementById("imageBtn");
 const imageInput = document.getElementById("imageInput");
-signupBtn.onclick = async () => {
-  const res = await fetch("/signup", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      username: username.value,
-      password: password.value
-    })
-  });
-
-  const data = await res.json();
-  alert(data.message);
-};
-
-loginBtn.onclick = async () => {
-  const res = await fetch("/login", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      username: username.value,
-      password: password.value
-    })
-  });
-
-  const data = await res.json();
-
-  if (!data.success) {
-    alert(data.message);
+loginBtn.onclick = () => {
+  if (username.value.trim() === "") {
+    alert("Apna naam likho");
     return;
   }
 
-  myName = data.username;
+  myName = username.value.trim();
+
   socket.emit("join", myName);
 
   loginPage.style.display = "none";
