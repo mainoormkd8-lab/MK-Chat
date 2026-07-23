@@ -1,17 +1,26 @@
 alert("Script Loaded");
+
 const socket = io();
-let selectedUser = "";
+
 let myName = "";
+let selectedUser = "";
 
 const loginPage = document.getElementById("loginPage");
 const chatPage = document.getElementById("chatPage");
 const username = document.getElementById("username");
-;
 const loginBtn = document.getElementById("loginBtn");
+
+const chatBox = document.getElementById("chatBox");
+const message = document.getElementById("message");
+const sendBtn = document.getElementById("sendBtn");
+const onlineUsers = document.getElementById("onlineUsers");
 const usersList = document.getElementById("users");
-const chatTitle = document.getElementById("chatTitle")
+const typing = document.getElementById("typing");
+
+const emojiBtn = document.getElementById("emojiBtn");
 const imageBtn = document.getElementById("imageBtn");
 const imageInput = document.getElementById("imageInput");
+
 loginBtn.onclick = () => {
   if (username.value.trim() === "") {
     alert("Apna naam likho");
@@ -26,44 +35,42 @@ loginBtn.onclick = () => {
   chatPage.style.display = "flex";
 };
 
-const chatBox = document.getElementById("chatBox");
-const message = document.getElementById("message");
-const typing = document.getElementById("typing");
-const sendBtn = document.getElementById("sendBtn");
-const emojiBtn = document.getElementById("emojiBtn");
-
-const onlineUsers = document.getElementById("onlineUsers");
 function sendMessage() {
   const text = message.value.trim();
 
-  if (text === "") return;
+  if (!text) return;
 
   socket.emit("chat message", {
-  from: myName,
-  to: selectedUser ? selectedUser.id : null,
-  text: text,
-  time: new Date().toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit"
-  })
-});
+    name: myName,
+    text,
+    time: new Date().toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit"
+    })
+  });
 
   message.value = "";
 }
 
-sendBtn.addEventListener("click", sendMessage);
-imageBtn.addEventListener("click", () => {
-  imageInput.click();
-});imageInput.addEventListener("change", () => {
+sendBtn.onclick = sendMessage;
 
+message.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") sendMessage();
+});
+
+emojiBtn.onclick = () => {
+  message.value += "😊";
+};
+
+imageBtn.onclick = () => imageInput.click();
+
+imageInput.onchange = () => {
   const file = imageInput.files[0];
-
   if (!file) return;
 
   const reader = new FileReader();
 
   reader.onload = () => {
-
     socket.emit("chat image", {
       name: myName,
       image: reader.result,
@@ -72,112 +79,59 @@ imageBtn.addEventListener("click", () => {
         minute: "2-digit"
       })
     });
-
   };
 
   reader.readAsDataURL(file);
+};
 
-});
-emojiBtn.addEventListener("click", () => {
+socket.on("chat message", (data) => {
+  const div = document.createElement("div");
+  div.className = "message";
 
-  message.value += "😊";
-
-  message.focus();
-
-});
-message.addEventListener("input", () => {
-  socket.emit("typing", myName);
-});
-message.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") {
-    sendMessage();
-  }
-});socket.on("chat message", (data) => {
-
-  const msg = document.createElement("div");
-
-  msg.classList.add("message");
-
-  if (data.name === myName) {
-    msg.classList.add("me");
-  } else {
-    msg.classList.add("other");
-  }
-
-  msg.innerHTML = `
-    <strong>${data.name}</strong><br>
+  div.innerHTML = `
+    <b>${data.name}</b><br>
     ${data.text}
-    <div style="font-size:11px;margin-top:4px;text-align:right;">
-      ${data.time}
-    </div>
+    <div>${data.time}</div>
   `;
 
-  chatBox.appendChild(msg);
-
+  chatBox.appendChild(div);
   chatBox.scrollTop = chatBox.scrollHeight;
-
 });
+
+socket.on("chat image", (data) => {
+  const div = document.createElement("div");
+  div.className = "message";
+
+  div.innerHTML = `
+    <b>${data.name}</b><br>
+    <img src="${data.image}" style="max-width:220px;border-radius:10px;">
+    <div>${data.time}</div>
+  `;
+
+  chatBox.appendChild(div);
+  chatBox.scrollTop = chatBox.scrollHeight;
+});
+
 socket.on("online users", (count) => {
-  if (count === 1) {
-    onlineUsers.innerText = "🟢 1 User Online";
-  } else {
-    onlineUsers.innerText = `🟢 ${count} Users Online`;
-  }
+  onlineUsers.innerText = `🟢 ${count} User Online`;
 });
-socket.on("user list", (users) => {
 
+socket.on("user list", (users) => {
   usersList.innerHTML = "";
 
   users.forEach((user) => {
-
-  const li = document.createElement("li");
-
-  li.innerText = "🟢 " + user.name;
-
-  li.onclick = () => {
-    selectedUser = user;
-    alert("Selected: " + user.name);
-  };
-
-  usersList.appendChild(li);
-
+    const li = document.createElement("li");
+    li.innerText = "🟢 " + user.name;
+    usersList.appendChild(li);
+  });
 });
-});
+
 socket.on("typing", (name) => {
-
   if (name === myName) return;
 
   typing.innerText = name + " is typing...";
 
-  clearTimeout(window.typingTimeout);
-
-  window.typingTimeout = setTimeout(() => {
+  setTimeout(() => {
     typing.innerText = "";
   }, 1000);
-
-});
-socket.on("chat image", (data) => {
-
-  const msg = document.createElement("div");
-
-  msg.classList.add("message");
-
-  if (data.name === myName) {
-    msg.classList.add("me");
-  } else {
-    msg.classList.add("other");
-  }
-
-  msg.innerHTML = `
-    <strong>${data.name}</strong><br>
-    <img src="${data.image}" style="max-width:220px;border-radius:10px;">
-    <div style="font-size:11px;text-align:right;">
-      ${data.time}
-    </div>
-  `;
-
-  chatBox.appendChild(msg);
-
-  chatBox.scrollTop = chatBox.scrollHeight;
-
 });
